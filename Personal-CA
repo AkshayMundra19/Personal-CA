@@ -1,0 +1,99 @@
+import pandas as pd
+from matplotlib.pyplot import figure, bar, axhline, xlabel, ylabel, title, xticks, show, plot, legend
+from sklearn.linear_model import LinearRegression
+from datetime import datetime
+
+# Store all monthly records here
+finance_records = []
+
+def enter_monthly_details():
+    """
+    Takes monthly income and expense details from user
+    and stores calculated values.
+    """
+    print("\n--- Enter Monthly Finance Details ---")
+
+    month = datetime.now().strftime("%B %Y")
+
+    # Income details
+    salary = float(input("Enter Salary: "))
+    other_income = float(input("Enter Other Income: "))
+    total_income = salary + other_income
+
+    # Expense details
+    rent = float(input("Rent Expense: "))
+    food = float(input("Food Expense: "))
+    transport = float(input("Transport Expense: "))
+    utilities = float(input("Utilities Expense: "))
+    entertainment = float(input("Entertainment Expense: "))
+    misc = float(input("Miscellaneous Expense: "))
+
+    total_expense = rent + food + transport + utilities + entertainment + misc
+    balance = total_income - total_expense
+
+    finance_records.append([
+        month, salary, other_income, total_income,
+        rent, food, transport, utilities, entertainment, misc,
+        total_expense, balance
+    ])
+
+# Take data for multiple months
+while True:
+    enter_monthly_details()
+    more = input("Do you want to add another month? (y/n): ")
+    if more.lower() != 'y':
+        break
+
+# Create DataFrame
+columns = [
+    'Month', 'Salary', 'Other Income', 'Total Income',
+    'Rent', 'Food', 'Transport', 'Utilities',
+    'Entertainment', 'Miscellaneous',
+    'Total Expense', 'Balance'
+]
+
+df = pd.DataFrame(finance_records, columns=columns)
+
+print("\n--- Finance Summary ---")
+print(df)
+
+# Machine Learning Model (Expense Prediction)
+X = df[['Total Income']]
+y = df['Total Expense']
+
+model = LinearRegression()
+model.fit(X, y)
+
+df['Predicted Expense'] = model.predict(X)
+
+# Balance status graph (Green = positive, Red = negative)
+bar_colors = ['green' if bal >= 0 else 'red' for bal in df['Balance']]
+
+figure(figsize=(10, 5))
+bar(df['Month'], df['Balance'], color=bar_colors)
+axhline(0)
+xlabel("Month")
+ylabel("Balance (₹)")
+title("Monthly Balance Status")
+xticks(rotation=45)
+show()
+
+# Income vs Expense tracking
+figure(figsize=(10, 5))
+plot(df['Month'], df['Total Income'], marker='o', label='Income')
+plot(df['Month'], df['Total Expense'], marker='o', label='Expense')
+xlabel("Month")
+ylabel("Amount (₹)")
+title("Income vs Expense Overview")
+legend()
+xticks(rotation=45)
+show()
+
+# Prediction for next month
+expected_income = float(input("\nEnter expected income for next month: "))
+predicted_expense = model.predict([[expected_income]])[0]
+expected_balance = expected_income - predicted_expense
+
+print("\n--- Next Month Prediction ---")
+print("Predicted Expense:", round(predicted_expense, 2))
+print("Expected Balance:", round(expected_balance, 2))
