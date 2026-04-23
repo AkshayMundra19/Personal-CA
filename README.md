@@ -1,4 +1,3 @@
-# Personal-CA
 # PERSONAL CA
 
 PERSONAL CA is a Python-based Personal Finance Management System designed to help users track income, expenses, savings, and predict future expenses using Machine Learning techniques.
@@ -58,6 +57,7 @@ PERSONAL-CA/
 
 # Install the required dependencies
    pip install pandas matplotlib scikit-learn
+   install other libraries required
 
 # Run the application
    python main.py
